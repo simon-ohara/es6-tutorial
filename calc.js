@@ -1,4 +1,10 @@
-let calculateMonthlyPayment = function (principal, years, rate) {
+let inputs = [
+  'principal'
+, 'years'
+, 'rate'
+];
+
+let calculateMonthlyPayment = (principal, years, rate) => {
   let monthlyRate = 0;
 
   if (rate) {
@@ -9,11 +15,48 @@ let calculateMonthlyPayment = function (principal, years, rate) {
   return { principal, years, rate, monthlyPayment, monthlyRate };
 };
 
-document.getElementById('calcBtn').addEventListener('click', function () {
-  let principal = document.getElementById("principal").value;
-  let years = document.getElementById("years").value;
-  let rate = document.getElementById("rate").value;
-  let { monthlyPayment, monthlyRate } = calculateMonthlyPayment(principal, years, rate);
-  document.getElementById("monthlyPayment").innerHTML = monthlyPayment.toFixed(2);
+let calculateAmortization = (principal, years, rate) => {
+  let { monthlyRate, monthlyPayment } = calculateMonthlyPayment(principal, years, rate)
+    , balance = principal
+    , amortization = [];
+
+  for (let y=0; y<years; y++) {
+    let interestY = 0  //Interest payment for year y
+      , principalY = 0; //Principal payment for year y
+
+    for (let m=0; m<12; m++) {
+      let interestM = balance * monthlyRate       //Interest payment for month m
+        , principalM = monthlyPayment - interestM; //Principal payment for month m
+
+      interestY = interestY + interestM;
+      principalY = principalY + principalM;
+      balance = balance - principalM;
+    }
+
+    amortization.push({ principalY, interestY, balance });
+  }
+
+  return { monthlyPayment, monthlyRate, amortization };
+};
+
+let getInputValues = () => {
+  let values = {};
+
+  inputs.forEach(input => {
+    values[input] = document.getElementById(input).value;
+  });
+
+  return values;
+};
+
+let handleClick = () => {
+  let { principal, years, rate } = getInputValues();
+  let { monthlyPayment, monthlyRate, amortization } = calculateAmortization(principal, years, rate);
+
+  document.getElementById('monthlyPayment').innerHTML = monthlyPayment.toFixed(2);
   document.getElementById('monthlyRate').innerHTML = (monthlyRate * 100).toFixed(2);
-});
+
+  amortization.forEach(month => console.log(month));
+};
+
+document.getElementById('calcBtn').addEventListener('click', handleClick);
