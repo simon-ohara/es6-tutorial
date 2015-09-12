@@ -1,16 +1,27 @@
 var gulp = require('gulp')
-  , babel = require('gulp-babel');
+  , webpack = require('webpack-stream');
   
 var transpile = function(event) {
   gulp
-  .src(event.path)
-  .pipe(babel())
-  .pipe(gulp.dest('js'));
+  .src('lib/calc.js')
+  .pipe(webpack({
+    module: {
+      loaders: [
+        {
+          test: /\.js$/
+        , loader: 'babel'
+        }
+      ]
+    }
+  , output: {
+      filename: 'calc-bundle.js'
+    }
+  }))
+  .pipe(gulp.dest('dist'));
 };
 
 var watch = function() {
-  gulp.watch('calc.js', transpile);
+  gulp.watch('lib/**/*.js', transpile);
 };
 
 gulp.task('default', watch);
-
