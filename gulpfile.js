@@ -13,8 +13,12 @@ var transpile = function(event) {
         }
       ]
     }
+  , entry: {
+      calc: './lib/calc.js'
+    , 'rate-finder': './lib/ratefinder.js'
+    }
   , output: {
-      filename: 'calc-bundle.js'
+      filename: '[name]-bundle.js'
     }
   }))
   .pipe(gulp.dest('dist'));
